@@ -9,11 +9,11 @@ const envFile = isTest ? '.env.test' : '.env';
 dotenv.config({ path: join(__dirname, '../../../', envFile) });
 
 export default defineConfig({
-  host: process.env.DATABASE_HOST,
-  port: Number(process.env.DATABASE_PORT),
-  dbName: process.env.DATABASE_NAME,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  dbName: process.env.DB_NAME,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
   entities: [join(__dirname, './entities')],
   entitiesTs: [join(__dirname, './entities')],
   extensions: [Migrator],
