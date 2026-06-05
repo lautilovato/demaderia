@@ -12,10 +12,10 @@ export class BaseMikroOrmRepository<
   T extends object,
 > extends EntityRepository<T> {
   constructor(
-    readonly em: EntityManager,
+    em: EntityManager,
     entityClass: EntityName<T>,
   ) {
-    super(em, entityClass);
+    super(em as any, entityClass);
   }
 
   /**

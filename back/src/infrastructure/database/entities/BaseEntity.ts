@@ -12,6 +12,7 @@ export abstract class CustomBaseEntity {
   createdAt!: Date & Opt;
 
   @Property({
+    type: 'datetime',
     columnType: 'timestamp(6)',
     nullable: true,
     fieldName: 'updated_at',

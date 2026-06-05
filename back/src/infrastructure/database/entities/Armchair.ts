@@ -8,7 +8,7 @@ export class Armchair extends CustomBaseEntity {
   @PrimaryKey({ type: 'integer', autoincrement: true })
   id!: number & Opt;
 
-  @Property({fieldName: 'name', nullable: false, length: 50 })
+  @Property({ type: 'string', fieldName: 'name', nullable: false, length: 50 })
   name!: string;
 
   @Property({ type: 'decimal', precision: 10, scale: 2 })
