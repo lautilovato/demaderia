@@ -5,6 +5,7 @@ import { APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import mikroOrmConfig from './infrastructure/database/database.config';
 import { ArmchairModule } from './modules/armchair/armchair.module';
+import { TiendanubeModule } from './modules/tiendanube/tiendanube.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ArmchairModule } from './modules/armchair/armchair.module';
       }),
     }),
     ArmchairModule,
+    TiendanubeModule,
   ],
   controllers: [],
   providers: [
