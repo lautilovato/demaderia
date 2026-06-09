@@ -5,6 +5,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import axios, { AxiosInstance } from 'axios';
 import { AbandonedCart } from '../../infrastructure/database/entities/AbandonedCart'; 
 import { AbandonedCartRepository } from '../abandonedCart/abandonedCart.repository';
+import { TiendanubeProductDto } from './dto/product.dto';
 import { OrderLocationRepository } from '../orderLocation/orderLocation.repository';
 @Injectable()
 export class TiendanubeService {
@@ -32,30 +33,51 @@ export class TiendanubeService {
     });
   }
 
-  async getProducts() {
+  async getProducts(): Promise<TiendanubeProductDto[]> {
     try {
       const response = await this.client.get('/products');
-      return response.data;
+      const products = response.data;
+
+      return products.map((product: any) => {
+        const firstVariant = product.variants?.[0];
+        const firstImage = product.images?.[0];
+
+        let stockValue: number | null;
+        if (firstVariant && firstVariant.stock_management && firstVariant.stock !== null) {
+          stockValue = Number(firstVariant.stock);
+        } else if (product.has_stock) {
+          stockValue = null; // Disponible, pero sin seguimiento de cantidad
+        } else {
+          stockValue = 0; // Sin stock
+        }
+
+        return {
+          id: product.id,
+          name: product.name?.es || 'Sin nombre',
+          description: product.description?.es || '',
+          price: firstVariant ? parseFloat(firstVariant.price) : 0,
+          stock: stockValue,
+          sku: firstVariant?.sku || null,
+          imageUrl: firstImage?.src || null,
+          url: product.canonical_url,
+        };
+      });
     } catch (error) {
       this.logger.error('Error al obtener productos de Tiendanube', error);
       throw error;
     }
   }
 
-  // === LÓGICA DE WEBHOOKS: CARRITOS ABANDONADOS ===
   async processAbandonedCart(payload: any) {
     try {
-      // 1. Extraemos los datos del JSON que envía Tiendanube
       const checkoutId = payload.id.toString();
       const email = payload.customer?.email || 'sin-email@desconocido.com';
       const total = parseFloat(payload.total);
       const recoveryUrl = payload.abandoned_checkout_url;
 
-      // 2. Buscamos si ya existe para evitar duplicados
       let cart = await this.abandonedCartRepository.findOne({ checkoutId });
 
       if (!cart) {
-        // 3. Si no existe, creamos el registro
         cart = this.abandonedCartRepository.create({
           checkoutId,
           customerEmail: email,
@@ -67,7 +89,6 @@ export class TiendanubeService {
         
         this.logger.log(`Nuevo carrito abandonado guardado para: ${email}`);
       } else {
-        // 4. Si ya existe, actualizamos los datos (ej: si agregó más cosas antes de irse)
         cart.totalPrice = total;
         cart.recoveryUrl = recoveryUrl;
         await this.abandonedCartRepository.save(cart);
@@ -83,7 +104,6 @@ export class TiendanubeService {
 
   async processCompletedOrder(payload: any) {
   try {
-    // Nos aseguramos de que la orden tenga dirección de envío
     const shipping = payload.shipping_address;
     if (!shipping || !shipping.zipcode) {
       this.logger.log(`Orden ${payload.id} no tiene código postal registrado.`);
@@ -92,11 +112,9 @@ export class TiendanubeService {
 
     const orderId = payload.id.toString();
     
-    // Verificamos si ya registramos esta orden para no duplicar
     const existingRecord = await this.orderLocationRepository.findOne({ orderId });
     if (existingRecord) return;
 
-    // Creamos el registro
     const locationData = this.orderLocationRepository.create({
       orderId,
       postalCode: shipping.zipcode,

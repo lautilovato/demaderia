@@ -12,8 +12,7 @@ export class TiendanubeController {
     try {
       const products = await this.tiendanubeService.getProducts();
       return {
-        success: true,
-        data: products,
+        products
       };
     } catch (error) {
       throw new InternalServerErrorException({
@@ -25,16 +24,13 @@ export class TiendanubeController {
   }
 
   @Post('webhook/checkouts')
-  @HttpCode(HttpStatus.OK) // Devolvemos 200 OK rápido para que Tiendanube no reintente
+  @HttpCode(HttpStatus.OK)
   async handleAbandonedCartWebhook(@Body() payload: any) {
     
-    // Delegamos la lógica al servicio en segundo plano (fire and forget)
-    // Usamos .catch() para que si falla la base de datos, no le devuelva un error 500 a Tiendanube
     this.tiendanubeService.processAbandonedCart(payload).catch((err) => {
         console.error('Error procesando el webhook en segundo plano:', err);
     });
     
-    // Le respondemos a Tiendanube inmediatamente que recibimos el paquete
     return { received: true }; 
   }
 
