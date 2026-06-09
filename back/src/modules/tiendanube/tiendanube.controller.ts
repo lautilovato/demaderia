@@ -37,4 +37,13 @@ export class TiendanubeController {
     // Le respondemos a Tiendanube inmediatamente que recibimos el paquete
     return { received: true }; 
   }
+
+  @Post('webhook/orders/paid')
+  @HttpCode(HttpStatus.OK)
+  async handlePaidOrderWebhook(@Body() payload: any) {
+    this.tiendanubeService.processCompletedOrder(payload).catch((err) => {
+        console.error('Error procesando ubicación de la orden:', err);
+    });
+    return { received: true }; 
+  }
 }

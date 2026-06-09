@@ -5,6 +5,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import axios, { AxiosInstance } from 'axios';
 import { AbandonedCart } from '../../infrastructure/database/entities/AbandonedCart'; 
 import { AbandonedCartRepository } from '../abandonedCart/abandonedCart.repository';
+import { OrderLocationRepository } from '../orderLocation/orderLocation.repository';
 @Injectable()
 export class TiendanubeService {
   private readonly logger = new Logger(TiendanubeService.name);
@@ -14,6 +15,7 @@ export class TiendanubeService {
   constructor(
     private configService: ConfigService,
     private readonly abandonedCartRepository: AbandonedCartRepository,
+    private readonly orderLocationRepository: OrderLocationRepository,
   ) {
     this.storeId = this.configService.get<string>('TIENDANUBE_STORE_ID');
     const accessToken = this.configService.get<string>('TIENDANUBE_ACCESS_TOKEN');
@@ -77,4 +79,39 @@ export class TiendanubeService {
       throw error;
     }
   }
+
+
+  async processCompletedOrder(payload: any) {
+  try {
+    // Nos aseguramos de que la orden tenga dirección de envío
+    const shipping = payload.shipping_address;
+    if (!shipping || !shipping.zipcode) {
+      this.logger.log(`Orden ${payload.id} no tiene código postal registrado.`);
+      return;
+    }
+
+    const orderId = payload.id.toString();
+    
+    // Verificamos si ya registramos esta orden para no duplicar
+    const existingRecord = await this.orderLocationRepository.findOne({ orderId });
+    if (existingRecord) return;
+
+    // Creamos el registro
+    const locationData = this.orderLocationRepository.create({
+      orderId,
+      postalCode: shipping.zipcode,
+      city: shipping.city,
+      province: shipping.province,
+      totalValue: parseFloat(payload.total),
+    });
+
+    await this.orderLocationRepository.save(locationData);
+    this.logger.log(`Nueva zona de venta registrada: CP ${shipping.zipcode} (${shipping.city})`);
+
+  } catch (error) {
+    this.logger.error(`Error al procesar ubicación de orden (ID: ${payload?.id})`, error);
+    throw error;
+  }
+}
+  
 }
