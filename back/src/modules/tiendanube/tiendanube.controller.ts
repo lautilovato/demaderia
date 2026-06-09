@@ -1,5 +1,6 @@
-import { Controller, Get, HttpCode, HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, InternalServerErrorException, Post } from '@nestjs/common';
 import { TiendanubeService } from './tiendanube.service';
+import { Body } from '@nestjs/common';
 
 @Controller('tiendanube')
 export class TiendanubeController {
@@ -21,5 +22,19 @@ export class TiendanubeController {
         error: error instanceof Error ? error.message : String(error),
       });
     }
+  }
+
+  @Post('webhook/checkouts')
+  @HttpCode(HttpStatus.OK) // Devolvemos 200 OK rápido para que Tiendanube no reintente
+  async handleAbandonedCartWebhook(@Body() payload: any) {
+    
+    // Delegamos la lógica al servicio en segundo plano (fire and forget)
+    // Usamos .catch() para que si falla la base de datos, no le devuelva un error 500 a Tiendanube
+    this.tiendanubeService.processAbandonedCart(payload).catch((err) => {
+        console.error('Error procesando el webhook en segundo plano:', err);
+    });
+    
+    // Le respondemos a Tiendanube inmediatamente que recibimos el paquete
+    return { received: true }; 
   }
 }
