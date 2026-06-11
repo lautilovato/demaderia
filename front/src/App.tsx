@@ -1,23 +1,26 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Sidebar from './components/layout/Sidebar';
+import Dashboard from './pages/Dashboard';
 
-import './App.css'
-
-function App() {
-
+export default function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100">
-      <div className="rounded-2xl bg-white p-8 shadow-xl text-center max-w-sm">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">
-          ¡React + Tailwind funcionando! 🚀
-        </h1>
-        <p className="text-slate-600 mb-4">
-          Ya puedes empezar a diseñar tu interfaz de usuario usando clases de utilidad.
-        </p>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-          Explorar componentes
-        </button>
-      </div>
-    </div>
-  )
-}
+    <Router>
+      <div className="flex min-h-screen bg-zinc-100">
+        <Sidebar />
+        <main className="flex-1 pl-64 p-8">
+          <div className="max-w-7xl mx-auto">
+            
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard/>} />
 
-export default App
+              {/* Cualquier otra ruta redirige al dashboard */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+
+          </div>
+        </main>
+
+      </div>
+    </Router>
+  );
+}
