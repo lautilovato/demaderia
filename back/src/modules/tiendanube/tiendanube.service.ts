@@ -15,7 +15,7 @@ export class TiendanubeService {
 
   constructor(
     private configService: ConfigService,
-    private readonly abandonedCartRepository: AbandonedCartRepository,
+    public readonly abandonedCartRepository: AbandonedCartRepository,
     private readonly orderLocationRepository: OrderLocationRepository,
   ) {
     this.storeId = this.configService.get<string>('TIENDANUBE_STORE_ID');

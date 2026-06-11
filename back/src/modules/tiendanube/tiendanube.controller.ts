@@ -42,4 +42,10 @@ export class TiendanubeController {
     });
     return { received: true }; 
   }
+
+  @Get('webhook/orders/abandoned')
+  @HttpCode(HttpStatus.OK)
+  async testFetchAbandonedCarts() {
+  return this.tiendanubeService.abandonedCartRepository.findAll()  
+  }
 }
