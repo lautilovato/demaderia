@@ -26,12 +26,11 @@ export default function ModelosCotizadosCard() {
       {/* Contenedor del Gráfico y la Leyenda */}
       <div className="flex items-center justify-between gap-8 px-2 flex-1">
         
-        {/* Gráfico de Dona (Hecho con CSS) */}
+        {/* Gráfico de torta */}
         <div 
           className="w-32 h-32 rounded-full relative flex items-center justify-center shrink-0 shadow-inner"
           style={{ background: `conic-gradient(${gradientStops})` }}
         >
-          {/* Círculo central blanco que crea el "agujero" de la dona */}
           <div className="w-16 h-16 bg-white rounded-full absolute"></div>
         </div>
 

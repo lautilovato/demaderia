@@ -1,6 +1,7 @@
 import CardDashboard from "../components/dashboard/CardDashboard";
 import { Package, CheckCircle2, Armchair, FileText } from 'lucide-react';
 import CardListedModels from "../components/dashboard/CardListedModels";
+import CardRecentActivity from '../components/dashboard/CardRecentActivity';
 
 export default function Dashboard() {
   return (
@@ -28,9 +29,7 @@ export default function Dashboard() {
         
         {/* Tarjeta 2: Actividad Reciente (Ocupa 5 de 8 columnas, equivalente a 2.5 de 4) */}
         <div className="lg:col-span-5">
-          <div className="bg-white rounded-2xl border border-zinc-200/80 border-dashed flex items-center justify-center text-zinc-400 p-6 h-full min-h-[300px]">
-            Aquí irá el componente de Actividad Reciente...
-          </div>
+          <CardRecentActivity />
         </div>
       </div>
 
