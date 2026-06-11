@@ -7,7 +7,7 @@ export default function App() {
     <Router>
       <div className="flex min-h-screen bg-zinc-100">
         <Sidebar />
-        <main className="flex-1 pl-64 p-8">
+        <main className="flex-1 ml-64 p-8">
           <div className="max-w-7xl mx-auto">
             
             <Routes>
